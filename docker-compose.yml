@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: luxis_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: luxis_admin
+      POSTGRES_PASSWORD: dev_password_change_later
+      POSTGRES_DB: luxis_sports_cafe
+    ports:
+      - "5432:5432"
+    volumes:
+       - postgres_data:/var/lib/postgresql
+
+volumes:
+  postgres_data:
