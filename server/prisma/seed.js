@@ -1,0 +1,37 @@
+const prisma = require('../src/db');
+const bcrypt = require('bcrypt');
+
+async function main() {
+  const superAdminRole = await prisma.role.upsert({
+    where: { name: 'SUPER_ADMIN' },
+    update: {},
+    create: {
+      name: 'SUPER_ADMIN',
+      description: 'Full access to all system features',
+    },
+  });
+
+  const passwordHash = await bcrypt.hash('ChangeMe123!', 10);
+
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@luxissportscafe.com' },
+    update: {},
+    create: {
+      name: 'Haseeb',
+      email: 'admin@luxissportscafe.com',
+      passwordHash,
+      roleId: superAdminRole.id,
+    },
+  });
+
+  console.log('Seed complete:', { role: superAdminRole.name, user: adminUser.email });
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

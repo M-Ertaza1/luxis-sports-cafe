@@ -1,0 +1,178 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  users       User[]
+  createdAt   DateTime @default(now())
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  isActive      Boolean   @default(true)
+  roleId        String
+  role          Role      @relation(fields: [roleId], references: [id])
+  refreshTokens RefreshToken[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  bookings      Booking[]
+
+  kitchenTransfers KitchenTransfer[]
+  sales            Sale[]
+  auditLogs        AuditLog[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  tokenHash String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+}
+
+enum SportType {
+  CRICKET
+  FUTSAL
+  HANDBALL
+  SUBSOCCER
+}
+
+enum PaymentStatus {
+  PAID
+  UNPAID
+}
+
+enum BookingStatus {
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model Arena {
+  id         String    @id @default(uuid())
+  name       String
+  sportType  SportType
+  hourlyRate Decimal   @db.Decimal(10, 2)
+  isActive   Boolean   @default(true)
+  bookings   Booking[]
+  createdAt  DateTime  @default(now())
+}
+
+model Booking {
+  id            String        @id @default(uuid())
+  arenaId       String
+  arena         Arena         @relation(fields: [arenaId], references: [id])
+  customerName  String
+  customerPhone String
+  bookingDate   DateTime      @db.Date
+  startTime     DateTime      @db.Time
+  endTime       DateTime      @db.Time
+  paymentStatus PaymentStatus @default(UNPAID)
+  bookingStatus BookingStatus @default(CONFIRMED)
+  notes         String?
+  price         Decimal       @db.Decimal(10, 2)
+  createdById   String
+  createdBy     User          @relation(fields: [createdById], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+enum ItemType {
+  STOCK
+  FRESH_ON_DEMAND
+}
+
+enum Kitchen {
+  MAIN
+  COUNTER
+}
+
+model InventoryItem {
+  id          String   @id @default(uuid())
+  name        String
+  category    String
+  price       Decimal  @db.Decimal(10, 2)
+  itemType    ItemType
+  unit        String
+  createdAt   DateTime @default(now())
+
+  stockLevels       KitchenStock[]
+  transfers         KitchenTransfer[]
+  sales             Sale[]
+  usedAsFinishedIn  ItemRecipe[] @relation("FinishedItem")
+  usedAsIngredientIn ItemRecipe[] @relation("IngredientItem")
+}
+
+model ItemRecipe {
+  id                String        @id @default(uuid())
+  finishedItemId    String
+  finishedItem      InventoryItem @relation("FinishedItem", fields: [finishedItemId], references: [id])
+  ingredientItemId  String
+  ingredientItem    InventoryItem @relation("IngredientItem", fields: [ingredientItemId], references: [id])
+  quantityRequired  Decimal       @db.Decimal(10, 3)
+}
+
+model KitchenStock {
+  id        String        @id @default(uuid())
+  itemId    String
+  item      InventoryItem @relation(fields: [itemId], references: [id])
+  kitchen   Kitchen
+  quantity  Decimal       @db.Decimal(10, 3) @default(0)
+
+  @@unique([itemId, kitchen])
+}
+
+model KitchenTransfer {
+  id              String        @id @default(uuid())
+  itemId          String
+  item            InventoryItem @relation(fields: [itemId], references: [id])
+  quantity        Decimal       @db.Decimal(10, 3)
+  fromKitchen     Kitchen
+  toKitchen       Kitchen
+  transferredById String
+  transferredBy   User          @relation(fields: [transferredById], references: [id])
+  transferredAt   DateTime      @default(now())
+}
+
+model Sale {
+  id          String        @id @default(uuid())
+  itemId      String
+  item        InventoryItem @relation(fields: [itemId], references: [id])
+  kitchen     Kitchen
+  quantity    Decimal       @db.Decimal(10, 3)
+  unitPrice   Decimal       @db.Decimal(10, 2)
+  totalAmount Decimal       @db.Decimal(10, 2)
+  soldById    String
+  soldBy      User          @relation(fields: [soldById], references: [id])
+  soldAt      DateTime      @default(now())
+}
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  actionType    String
+  entityType    String
+  entityId      String
+  previousValue Json?
+  newValue      Json?
+  createdAt     DateTime @default(now())
+}
