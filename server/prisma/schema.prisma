@@ -68,7 +68,7 @@ enum BookingStatus {
 
 model Arena {
   id         String    @id @default(uuid())
-  name       String
+  name       String    @unique
   sportType  SportType
   hourlyRate Decimal   @db.Decimal(10, 2)
   isActive   Boolean   @default(true)

@@ -24,6 +24,22 @@ async function main() {
     },
   });
 
+
+const arenas = [
+    { name: 'Cricket Arena', sportType: 'CRICKET', hourlyRate: 2000 },
+    { name: 'Futsal Court', sportType: 'FUTSAL', hourlyRate: 1500 },
+    { name: 'Handball Court', sportType: 'HANDBALL', hourlyRate: 1200 },
+    { name: 'Subsoccer Court', sportType: 'SUBSOCCER', hourlyRate: 1000 },
+  ];
+
+  for (const arena of arenas) {
+    await prisma.arena.upsert({
+      where: { name: arena.name },
+      update: {},
+      create: arena,
+    });
+  }
+  
   console.log('Seed complete:', { role: superAdminRole.name, user: adminUser.email });
 }
 
