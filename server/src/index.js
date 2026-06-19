@@ -11,6 +11,7 @@ const bookingRoutes = require('./routes/booking.routes');
 
 const inventoryRoutes = require('./routes/inventory.routes');
 
+const transferRoutes = require('./routes/transfer.routes');
 
 app.use(cors());
 app.use(express.json());
@@ -21,6 +22,7 @@ app.use('/api/bookings', bookingRoutes);
 
 app.use('/api/inventory', inventoryRoutes);
 
+app.use('/api/transfers', transferRoutes);
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Luxis Sports Cafe API is running' });
 });
