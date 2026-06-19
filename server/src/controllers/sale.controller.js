@@ -1,5 +1,6 @@
 const prisma = require('../db');
 const { writeAuditLog } = require('../utils/audit');
+const { emitChange } = require('../utils/realtime');
 
 async function createSale(req, res) {
   const { itemId, kitchen, quantity } = req.body;
@@ -97,6 +98,7 @@ async function createSale(req, res) {
       return saleRecord;
     });
 
+    emitChange('Sale', 'CREATE', sale);
     res.status(201).json(sale);
   } catch (err) {
     if (err.message === 'NOT_FOUND') return res.status(404).json({ error: 'Item not found' });

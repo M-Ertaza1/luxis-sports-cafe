@@ -1,5 +1,6 @@
 const prisma = require('../db');
 const { writeAuditLog } = require('../utils/audit');
+const { emitChange } = require('../utils/realtime');
 
 async function createTransfer(req, res) {
   const { itemId, quantity } = req.body;
@@ -75,6 +76,7 @@ async function createTransfer(req, res) {
       return transferRecord;
     });
 
+    emitChange('KitchenTransfer', 'CREATE', transfer);
     res.status(201).json(transfer);
   } catch (err) {
     if (err.message === 'NOT_FOUND') return res.status(404).json({ error: 'Item not found' });

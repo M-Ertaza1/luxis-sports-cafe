@@ -2,6 +2,8 @@ const prisma = require('../db');
 
 const { writeAuditLog } = require('../utils/audit');
 
+const { emitChange } = require('../utils/realtime');
+
 async function createBooking(req, res) {
   const {
     arenaId,
@@ -74,6 +76,7 @@ async function createBooking(req, res) {
       return created;
     });
 
+    emitChange('Booking', 'CREATE', booking);
     res.status(201).json(booking);
   } catch (err) {
     if (err.message === 'ARENA_NOT_FOUND') {
@@ -193,6 +196,7 @@ async function updateBooking(req, res) {
       return updatedBooking;
     });
 
+    emitChange('Booking', 'UPDATE', updated);
     res.json(updated);
   } catch (err) {
     if (err.message === 'NOT_FOUND') return res.status(404).json({ error: 'Booking not found' });
@@ -220,6 +224,7 @@ async function deleteBooking(req, res) {
       previousValue: existing,
     });
 
+    emitChange('Booking', 'DELETE', { id: req.params.id });
     res.json({ message: 'Booking deleted successfully' });
   } catch (err) {
     return res.status(404).json({ error: 'Booking not found' });

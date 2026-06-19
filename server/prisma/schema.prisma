@@ -119,6 +119,7 @@ model InventoryItem {
   sales             Sale[]
   usedAsFinishedIn  ItemRecipe[] @relation("FinishedItem")
   usedAsIngredientIn ItemRecipe[] @relation("IngredientItem")
+  reorderThreshold Decimal? @db.Decimal(10, 3)
 }
 
 model ItemRecipe {

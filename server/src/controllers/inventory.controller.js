@@ -1,7 +1,8 @@
 const prisma = require('../db');
-
+const { emitChange } = require('../utils/realtime');
+const { writeAuditLog } = require('../utils/audit');
 async function createItem(req, res) {
-  const { name, category, price, itemType, unit } = req.body;
+  const { name, category, price, itemType, unit, reorderThreshold } = req.body;
 
   if (!name || !category || price == null || !itemType || !unit) {
     return res.status(400).json({ error: 'Missing required item fields' });
@@ -11,7 +12,7 @@ async function createItem(req, res) {
     return res.status(400).json({ error: 'itemType must be STOCK or FRESH_ON_DEMAND' });
   }
 const item = await prisma.inventoryItem.create({
-    data: { name, category, price, itemType, unit },
+    data: { name, category, price, itemType, unit, reorderThreshold: reorderThreshold ?? null },
   });
 
   await writeAuditLog({
@@ -21,7 +22,7 @@ const item = await prisma.inventoryItem.create({
     entityId: item.id,
     newValue: item,
   });
-
+  emitChange('InventoryItem', 'CREATE', item);
   res.status(201).json(item);
   
 }
@@ -61,7 +62,7 @@ async function getItemById(req, res) {
 
 async function updateItem(req, res) {
   const { id } = req.params;
-  const { name, category, price, unit } = req.body;
+  const { name, category, price, unit, reorderThreshold } = req.body;
 
   try {
     const existing = await prisma.inventoryItem.findUnique({ where: { id } });
@@ -76,9 +77,11 @@ async function updateItem(req, res) {
         category: category ?? existing.category,
         price: price ?? existing.price,
         unit: unit ?? existing.unit,
+        reorderThreshold: reorderThreshold ?? existing.reorderThreshold,
       },
     });
 
+    emitChange('InventoryItem', 'UPDATE', updated);
     res.json(updated);
   } catch (err) {
     console.error(err);
@@ -89,6 +92,7 @@ async function updateItem(req, res) {
 async function deleteItem(req, res) {
   try {
     await prisma.inventoryItem.delete({ where: { id: req.params.id } });
+    emitChange('InventoryItem', 'DELETE', { id: req.params.id });
     res.json({ message: 'Item deleted successfully' });
   } catch (err) {
     return res.status(404).json({ error: 'Item not found' });
@@ -150,6 +154,7 @@ async function adjustStock(req, res) {
       return updatedStock;;
     });
 
+    emitChange('KitchenStock', 'STOCK_ADJUST', result);
     res.json(result);
   } catch (err) {
     if (err.message === 'NOT_FOUND') return res.status(404).json({ error: 'Item not found' });
