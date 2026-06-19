@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme{
+  --color-brand: #393474;
+  --color-brand-dark: #2c2860;
+  --color-brand-light: #4a4490;
+
+  --color-sport-cricket: #1B6CE0;
+  --color-sport-futsal: #E0231F;
+  --color-sport-handball: #12A150;
+  --color-sport-subsoccer: #7C3AED;
+
+  --color-paid: #12A150;
+  --color-unpaid: #E0231F;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
