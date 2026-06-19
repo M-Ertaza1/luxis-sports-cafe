@@ -10,12 +10,20 @@ async function createItem(req, res) {
   if (!['STOCK', 'FRESH_ON_DEMAND'].includes(itemType)) {
     return res.status(400).json({ error: 'itemType must be STOCK or FRESH_ON_DEMAND' });
   }
-
-  const item = await prisma.inventoryItem.create({
+const item = await prisma.inventoryItem.create({
     data: { name, category, price, itemType, unit },
   });
 
+  await writeAuditLog({
+    userId: req.user.userId,
+    actionType: 'CREATE',
+    entityType: 'InventoryItem',
+    entityId: item.id,
+    newValue: item,
+  });
+
   res.status(201).json(item);
+  
 }
 
 async function getItems(req, res) {
@@ -124,11 +132,22 @@ async function adjustStock(req, res) {
         throw new Error('NEGATIVE');
       }
 
-      return tx.kitchenStock.upsert({
+      const updatedStock = await tx.kitchenStock.upsert({
         where: { itemId_kitchen: { itemId: id, kitchen } },
         update: { quantity: newQty },
         create: { itemId: id, kitchen, quantity: newQty },
       });
+
+      await writeAuditLog({
+        userId: req.user.userId,
+        actionType: 'STOCK_ADJUST',
+        entityType: 'KitchenStock',
+        entityId: updatedStock.id,
+        previousValue: { quantity: currentQty },
+        newValue: { quantity: newQty, kitchen, change: quantityChange },
+      }, tx);
+
+      return updatedStock;;
     });
 
     res.json(result);

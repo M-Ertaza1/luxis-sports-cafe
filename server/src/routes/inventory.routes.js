@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { verifyToken } = require('../middleware/auth.middleware');
+const { writeAuditLog } = require('../utils/audit');
 const {
   createItem,
   getItems,

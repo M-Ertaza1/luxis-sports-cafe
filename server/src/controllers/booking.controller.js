@@ -1,5 +1,7 @@
 const prisma = require('../db');
 
+const { writeAuditLog } = require('../utils/audit');
+
 async function createBooking(req, res) {
   const {
     arenaId,
@@ -46,7 +48,7 @@ async function createBooking(req, res) {
         (1000 * 60 * 60);
       const price = Number(arena.hourlyRate) * hours;
 
-      return tx.booking.create({
+      const created = await tx.booking.create({
         data: {
           arenaId,
           customerName,
@@ -60,6 +62,16 @@ async function createBooking(req, res) {
           createdById: req.user.userId,
         },
       });
+
+      await writeAuditLog({
+        userId: req.user.userId,
+        actionType: 'CREATE',
+        entityType: 'Booking',
+        entityId: created.id,
+        newValue: created,
+      }, tx);
+
+      return created;
     });
 
     res.status(201).json(booking);
@@ -155,7 +167,7 @@ async function updateBooking(req, res) {
         throw new Error('OVERLAP');
       }
 
-      return tx.booking.update({
+      const updatedBooking = await tx.booking.update({
         where: { id },
         data: {
           customerName: customerName ?? existing.customerName,
@@ -168,6 +180,17 @@ async function updateBooking(req, res) {
           notes: notes ?? existing.notes,
         },
       });
+
+      await writeAuditLog({
+        userId: req.user.userId,
+        actionType: 'UPDATE',
+        entityType: 'Booking',
+        entityId: id,
+        previousValue: existing,
+        newValue: updatedBooking,
+      }, tx);
+
+      return updatedBooking;
     });
 
     res.json(updated);
@@ -182,7 +205,21 @@ async function updateBooking(req, res) {
 
 async function deleteBooking(req, res) {
   try {
+    const existing = await prisma.booking.findUnique({ where: { id: req.params.id } });
+    if (!existing) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
     await prisma.booking.delete({ where: { id: req.params.id } });
+
+    await writeAuditLog({
+      userId: req.user.userId,
+      actionType: 'DELETE',
+      entityType: 'Booking',
+      entityId: req.params.id,
+      previousValue: existing,
+    });
+
     res.json({ message: 'Booking deleted successfully' });
   } catch (err) {
     return res.status(404).json({ error: 'Booking not found' });

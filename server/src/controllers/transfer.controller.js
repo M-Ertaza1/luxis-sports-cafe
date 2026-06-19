@@ -1,4 +1,5 @@
 const prisma = require('../db');
+const { writeAuditLog } = require('../utils/audit');
 
 async function createTransfer(req, res) {
   const { itemId, quantity } = req.body;
@@ -53,7 +54,7 @@ async function createTransfer(req, res) {
       });
 
       // Record the transfer
-      return tx.kitchenTransfer.create({
+      const transferRecord = await tx.kitchenTransfer.create({
         data: {
           itemId,
           quantity,
@@ -62,6 +63,16 @@ async function createTransfer(req, res) {
           transferredById: req.user.userId,
         },
       });
+
+      await writeAuditLog({
+        userId: req.user.userId,
+        actionType: 'TRANSFER',
+        entityType: 'KitchenTransfer',
+        entityId: transferRecord.id,
+        newValue: { itemId, quantity, fromKitchen, toKitchen },
+      }, tx);
+
+      return transferRecord;
     });
 
     res.status(201).json(transfer);

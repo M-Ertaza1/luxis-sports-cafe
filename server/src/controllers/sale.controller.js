@@ -1,4 +1,5 @@
 const prisma = require('../db');
+const { writeAuditLog } = require('../utils/audit');
 
 async function createSale(req, res) {
   const { itemId, kitchen, quantity } = req.body;
@@ -74,7 +75,7 @@ async function createSale(req, res) {
       const unitPrice = Number(item.price);
       const totalAmount = unitPrice * quantity;
 
-      return tx.sale.create({
+      const saleRecord = await tx.sale.create({
         data: {
           itemId,
           kitchen,
@@ -84,6 +85,16 @@ async function createSale(req, res) {
           soldById: req.user.userId,
         },
       });
+
+      await writeAuditLog({
+        userId: req.user.userId,
+        actionType: 'SALE',
+        entityType: 'Sale',
+        entityId: saleRecord.id,
+        newValue: { itemId, kitchen, quantity, unitPrice, totalAmount },
+      }, tx);
+
+      return saleRecord;
     });
 
     res.status(201).json(sale);
