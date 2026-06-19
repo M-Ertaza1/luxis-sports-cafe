@@ -1,0 +1,62 @@
+import { NavLink } from 'react-router-dom';
+import {
+  LayoutDashboard,
+  CalendarDays,
+  Package,
+  ChefHat,
+  ShoppingCart,
+  ScrollText,
+} from 'lucide-react';
+
+const navItems = [
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/bookings', label: 'Bookings', icon: CalendarDays },
+  { to: '/inventory', label: 'Inventory', icon: Package },
+  { to: '/kitchen', label: 'Kitchen', icon: ChefHat },
+  { to: '/sales', label: 'Sales', icon: ShoppingCart },
+  { to: '/activity', label: 'Activity Log', icon: ScrollText },
+];
+
+export default function Sidebar({ open, onClose }) {
+  return (
+    <>
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/40 z-20 md:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      <aside
+        className={`fixed md:static z-30 top-0 left-0 h-full w-64 bg-brand text-white flex flex-col transform transition-transform duration-200 ${
+          open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
+      >
+        <div className="px-6 py-5 border-b border-white/10">
+          <div className="text-xl font-bold">LUXIS</div>
+          <div className="text-xs text-white/60 tracking-wide">SPORTS CAFÉ</div>
+        </div>
+
+        <nav className="flex-1 px-3 py-4 space-y-1">
+          {navItems.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={onClose}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
+                  isActive
+                    ? 'bg-white/15 text-white'
+                    : 'text-white/70 hover:bg-white/10 hover:text-white'
+                }`
+              }
+            >
+              <Icon size={18} />
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+      </aside>
+    </>
+  );
+}
