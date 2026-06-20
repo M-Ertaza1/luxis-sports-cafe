@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { verifyToken } = require('../middleware/auth.middleware');
-const { writeAuditLog } = require('../utils/audit');
+const { requirePermission } = require('../middleware/permission.middleware');
 const {
   createItem,
   getItems,
@@ -15,15 +15,15 @@ const {
   removeRecipeItem,
 } = require('../controllers/inventory.controller');
 
-router.post('/', verifyToken, createItem);
+router.post('/', verifyToken, requirePermission('inventory.create'), createItem);
 router.get('/', verifyToken, getItems);
 router.get('/:id', verifyToken, getItemById);
-router.put('/:id', verifyToken, updateItem);
-router.delete('/:id', verifyToken, deleteItem);
-router.post('/:id/stock', verifyToken, adjustStock);
+router.put('/:id', verifyToken, requirePermission('inventory.update'), updateItem);
+router.delete('/:id', verifyToken, requirePermission('inventory.delete'), deleteItem);
+router.post('/:id/stock', verifyToken, requirePermission('stock.adjust'), adjustStock);
 router.get('/:id/stock', verifyToken, getItemStock);
-router.post('/:id/recipe', verifyToken, addRecipeItem);
+router.post('/:id/recipe', verifyToken, requirePermission('recipe.manage'), addRecipeItem);
 router.get('/:id/recipe', verifyToken, getRecipe);
-router.delete('/recipe/:recipeId', verifyToken, removeRecipeItem);
+router.delete('/recipe/:recipeId', verifyToken, requirePermission('recipe.manage'), removeRecipeItem);
 
 module.exports = router;

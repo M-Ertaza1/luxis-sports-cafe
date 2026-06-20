@@ -16,6 +16,9 @@ const saleRoutes = require('./routes/sale.routes');
 const auditRoutes = require('./routes/audit.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 
+const arenaRoutes = require('./routes/arena.routes');
+const userRoutes = require('./routes/user.routes');
+
 app.use(cors());
 app.use(express.json());
 
@@ -26,6 +29,8 @@ app.use('/api/transfers', transferRoutes);
 app.use('/api/sales', saleRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/arenas', arenaRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Luxis Sports Cafe API is running' });

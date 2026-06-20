@@ -6,7 +6,10 @@ import {
   ChefHat,
   ShoppingCart,
   ScrollText,
+  Users as UsersIcon,
+  DollarSign,
 } from 'lucide-react';
+import { usePermission } from '../usePermission';
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -17,7 +20,16 @@ const navItems = [
   { to: '/activity', label: 'Activity Log', icon: ScrollText },
 ];
 
+const linkClass = ({ isActive }) =>
+  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
+    isActive
+      ? 'bg-white/15 text-white'
+      : 'text-white/70 hover:bg-white/10 hover:text-white'
+  }`;
+
 export default function Sidebar({ open, onClose }) {
+  const allow = usePermission();
+
   return (
     <>
       {open && (
@@ -39,22 +51,25 @@ export default function Sidebar({ open, onClose }) {
 
         <nav className="flex-1 px-3 py-4 space-y-1">
           {navItems.map(({ to, label, icon: Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              onClick={onClose}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
-                  isActive
-                    ? 'bg-white/15 text-white'
-                    : 'text-white/70 hover:bg-white/10 hover:text-white'
-                }`
-              }
-            >
+            <NavLink key={to} to={to} onClick={onClose} className={linkClass}>
               <Icon size={18} />
               {label}
             </NavLink>
           ))}
+
+          {allow('user.read') && (
+            <NavLink to="/users" onClick={onClose} className={linkClass}>
+              <UsersIcon size={18} />
+              Users
+            </NavLink>
+          )}
+
+          {allow('arena.update') && (
+            <NavLink to="/arenas" onClick={onClose} className={linkClass}>
+              <DollarSign size={18} />
+              Arenas & Pricing
+            </NavLink>
+          )}
         </nav>
       </aside>
     </>

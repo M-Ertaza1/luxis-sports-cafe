@@ -140,9 +140,9 @@ async function updateBooking(req, res) {
 
   try {
     const updated = await prisma.$transaction(async (tx) => {
-      const existing = await tx.booking.findUnique({ where: { id } });
-      if (!existing) {
-        throw new Error('NOT_FOUND');
+      const wantsToCancel = bookingStatus === 'CANCELLED';
+      if (wantsToCancel && existing.paymentStatus === 'PAID') {
+        throw new Error('PAID_CANCEL');
       }
 
       const newDate = bookingDate ? new Date(bookingDate) : existing.bookingDate;
@@ -202,6 +202,8 @@ async function updateBooking(req, res) {
     if (err.message === 'NOT_FOUND') return res.status(404).json({ error: 'Booking not found' });
     if (err.message === 'BAD_TIMES') return res.status(400).json({ error: 'End time must be after start time' });
     if (err.message === 'OVERLAP') return res.status(409).json({ error: 'This time slot overlaps an existing booking for this arena' });
+    if (err.message === 'PAID_CANCEL') return res.status(400).json({ error: 'Cannot cancel a paid booking' });
+
     console.error(err);
     return res.status(500).json({ error: 'Could not update booking' });
   }

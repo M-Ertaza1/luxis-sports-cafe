@@ -11,6 +11,24 @@ async function main() {
     },
   });
 
+  await prisma.role.upsert({
+    where: { name: 'SECONDARY_ADMIN' },
+    update: {},
+    create: {
+      name: 'SECONDARY_ADMIN',
+      description: 'Can create and update, but not delete or manage users',
+    },
+  });
+
+  await prisma.role.upsert({
+    where: { name: 'VIEWER' },
+    update: {},
+    create: {
+      name: 'VIEWER',
+      description: 'Read-only access to all information',
+    },
+  });
+
   const passwordHash = await bcrypt.hash('ChangeMe123!', 10);
 
   const adminUser = await prisma.user.upsert({
@@ -39,7 +57,7 @@ const arenas = [
       create: arena,
     });
   }
-  
+
   console.log('Seed complete:', { role: superAdminRole.name, user: adminUser.email });
 }
 
