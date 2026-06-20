@@ -4,6 +4,8 @@ import {
   TrendingUp,
   AlertTriangle,
   ShoppingCart,
+  Trophy,
+  BarChart3,
 } from 'lucide-react';
 import Layout from '../components/Layout';
 import api from '../api';
@@ -25,6 +27,8 @@ export default function Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [period, setPeriod] = useState(30);
+  const [analytics, setAnalytics] = useState(null);
 
   useEffect(() => {
     function loadDashboard() {
@@ -45,6 +49,13 @@ export default function Dashboard() {
       socket.disconnect();
     };
   }, []);
+
+  useEffect(() => {
+    api
+      .get(`/dashboard/analytics?period=${period}`)
+      .then((res) => setAnalytics(res.data))
+      .catch(() => {});
+  }, [period]);
 
   if (loading) {
     return (
@@ -161,23 +172,80 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-5 mt-6">
-        <h2 className="font-bold text-gray-800 mb-3">Recent Activity</h2>
-        {data.recentActivity.length === 0 ? (
-          <p className="text-sm text-gray-400">No recent activity.</p>
-        ) : (
-          <ul className="space-y-2">
-            {data.recentActivity.map((log) => (
-              <li key={log.id} className="flex justify-between text-sm border-b border-gray-100 pb-2">
-                <span>
-                  <span className="font-medium">{log.user?.name}</span>{' '}
-                  <span className="text-gray-500">{log.actionType} {log.entityType}</span>
-                </span>
-                <span className="text-gray-400">{new Date(log.createdAt).toLocaleString()}</span>
-              </li>
-            ))}
-          </ul>
-        )}
+      <div className="mt-6">
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <h2 className="font-bold text-gray-800 flex items-center gap-2">
+            <BarChart3 size={18} className="text-brand" />
+            Performance Analytics
+          </h2>
+          <select
+            value={period}
+            onChange={(e) => setPeriod(Number(e.target.value))}
+            className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+          >
+            <option value={7}>Last 7 days</option>
+            <option value={30}>Last 30 days</option>
+            <option value={90}>Last 3 months</option>
+            <option value={180}>Last 6 months</option>
+            <option value={365}>Last 1 year</option>
+          </select>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-5">
+            <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <Trophy size={16} className="text-amber-500" />
+              Top Selling Items
+            </h3>
+            {!analytics ? (
+              <p className="text-sm text-gray-400">Loading…</p>
+            ) : analytics.topItems.length === 0 ? (
+              <p className="text-sm text-gray-400">No sales in this period.</p>
+            ) : (
+              <ul className="space-y-2">
+                {analytics.topItems.map((it, i) => (
+                  <li key={it.itemId} className="flex items-center justify-between text-sm border-b border-gray-100 pb-2">
+                    <span className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-brand/10 text-brand text-xs font-bold flex items-center justify-center">{i + 1}</span>
+                      {it.name}
+                    </span>
+                    <span className="text-right">
+                      <span className="font-medium text-gray-800">Rs {it.revenue.toLocaleString()}</span>
+                      <span className="text-gray-400 text-xs block">{it.quantity} {it.unit} sold</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="bg-white rounded-xl border border-gray-200 p-5">
+            <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <Trophy size={16} className="text-amber-500" />
+              Most Booked Arenas
+            </h3>
+            {!analytics ? (
+              <p className="text-sm text-gray-400">Loading…</p>
+            ) : analytics.topArenas.length === 0 ? (
+              <p className="text-sm text-gray-400">No bookings in this period.</p>
+            ) : (
+              <ul className="space-y-2">
+                {analytics.topArenas.map((a, i) => (
+                  <li key={a.arenaId} className="flex items-center justify-between text-sm border-b border-gray-100 pb-2">
+                    <span className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-brand/10 text-brand text-xs font-bold flex items-center justify-center">{i + 1}</span>
+                      {a.name}
+                    </span>
+                    <span className="text-right">
+                      <span className="font-medium text-gray-800">{a.bookingCount} bookings</span>
+                      <span className="text-gray-400 text-xs block">Rs {a.revenue.toLocaleString()}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       </div>
     </Layout>
   );

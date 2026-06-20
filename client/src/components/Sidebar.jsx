@@ -44,9 +44,12 @@ export default function Sidebar({ open, onClose }) {
           open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
-        <div className="px-6 py-5 border-b border-white/10">
-          <div className="text-xl font-bold">LUXIS</div>
-          <div className="text-xs text-white/60 tracking-wide">SPORTS CAFÉ</div>
+        <div className="px-6 py-5 border-b border-white/10 flex items-center gap-3">
+          <img src="/luxis_crest.png" alt="Luxis Sports Café" className="h-10 w-auto" />
+          <div>
+            <div className="text-lg font-bold leading-tight">LUXIS</div>
+            <div className="text-[10px] text-white/60 tracking-wide">SPORTS CAFÉ</div>
+          </div>
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1">

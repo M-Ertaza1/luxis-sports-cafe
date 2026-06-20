@@ -30,6 +30,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-brand px-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
         <div className="text-center mb-6">
+          <img src="/luxis_crest.png" alt="Luxis Sports Café" className="h-20 w-auto mx-auto mb-3" />
           <h1 className="text-2xl font-bold text-brand">Luxis Sports Café</h1>
           <p className="text-gray-500 text-sm mt-1">Admin Management System</p>
         </div>
@@ -42,7 +43,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand"
-              placeholder="admin@luxissportscafe.com"
+              placeholder=""
               required
             />
           </div>

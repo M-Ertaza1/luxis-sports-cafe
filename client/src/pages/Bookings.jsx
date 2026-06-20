@@ -17,13 +17,20 @@ const sportColors = {
 
 function StatusBadge({ status }) {
   const styles = {
+    WAITING_PAYMENT: 'bg-amber-100 text-amber-700',
     CONFIRMED: 'bg-blue-100 text-blue-700',
     COMPLETED: 'bg-green-100 text-green-700',
     CANCELLED: 'bg-gray-200 text-gray-500',
   };
+  const labels = {
+    WAITING_PAYMENT: 'Waiting Payment',
+    CONFIRMED: 'Confirmed',
+    COMPLETED: 'Completed',
+    CANCELLED: 'Cancelled',
+  };
   return (
     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${styles[status] || ''}`}>
-      {status}
+      {labels[status] || status}
     </span>
   );
 }
@@ -167,7 +174,7 @@ export default function Bookings() {
                     {showActions && (
                       <td className="px-4 py-3">
                         <div className="flex justify-end gap-2">
-                          {allow('booking.update') && (
+                          {allow('booking.update') && b.bookingStatus !== 'COMPLETED' && (
                             <button
                               onClick={() => { setEditingBooking(b); setShowForm(true); }}
                               className="text-gray-400 hover:text-brand"

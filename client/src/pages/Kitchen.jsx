@@ -116,6 +116,7 @@ function TransferForm({ onTransferred }) {
 export default function Kitchen() {
   const [transfers, setTransfers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [stock, setStock] = useState({ main: [], counter: [] });
   const allow = usePermission();
 
   function loadTransfers() {
@@ -126,12 +127,24 @@ export default function Kitchen() {
       .finally(() => setLoading(false));
   }
 
-  useEffect(() => {
+  function loadStock() {
+    api
+      .get('/inventory/stock/all')
+      .then((res) => setStock(res.data))
+      .catch(() => {});
+  }
+
+  function loadAll() {
     loadTransfers();
+    loadStock();
+  }
+
+  useEffect(() => {
+    loadAll();
     socket.connect();
-    socket.on('change', loadTransfers);
+    socket.on('change', loadAll);
     return () => {
-      socket.off('change', loadTransfers);
+      socket.off('change', loadAll);
       socket.disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -143,7 +156,42 @@ export default function Kitchen() {
     <Layout>
       <h1 className="text-2xl font-bold text-brand mb-6">Kitchen Transfers</h1>
 
-      {allow('transfer.create') && <TransferForm onTransferred={loadTransfers} />}
+      {allow('transfer.create') && <TransferForm onTransferred={loadAll} />}
+
+      <h2 className="font-bold text-gray-800 mb-3">Current Stock</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="px-4 py-3 bg-brand text-white font-medium text-sm">Main Kitchen</div>
+          {stock.main.length === 0 ? (
+            <p className="text-sm text-gray-400 px-4 py-4">No stock in Main Kitchen.</p>
+          ) : (
+            <ul className="divide-y divide-gray-100">
+              {stock.main.map((s) => (
+                <li key={s.itemId} className="flex justify-between px-4 py-2.5 text-sm">
+                  <span className="text-gray-800">{s.name}</span>
+                  <span className="font-medium text-gray-700">{s.quantity} <span className="text-gray-400 font-normal">{s.unit}</span></span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="px-4 py-3 bg-gray-700 text-white font-medium text-sm">Counter Kitchen</div>
+          {stock.counter.length === 0 ? (
+            <p className="text-sm text-gray-400 px-4 py-4">No stock in Counter Kitchen.</p>
+          ) : (
+            <ul className="divide-y divide-gray-100">
+              {stock.counter.map((s) => (
+                <li key={s.itemId} className="flex justify-between px-4 py-2.5 text-sm">
+                  <span className="text-gray-800">{s.name}</span>
+                  <span className="font-medium text-gray-700">{s.quantity} <span className="text-gray-400 font-normal">{s.unit}</span></span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
 
       <h2 className="font-bold text-gray-800 mb-3">Transfer History</h2>
       {loading ? (

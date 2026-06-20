@@ -61,6 +61,7 @@ enum PaymentStatus {
 }
 
 enum BookingStatus {
+  WAITING_PAYMENT
   CONFIRMED
   COMPLETED
   CANCELLED

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import api from '../api';
 
+const todayStr = () => new Date().toISOString().slice(0, 10);
+
 export default function BookingForm({ booking, onClose, onSaved }) {
   const isEdit = Boolean(booking);
   const [arenas, setArenas] = useState([]);
@@ -13,7 +15,6 @@ export default function BookingForm({ booking, onClose, onSaved }) {
     startTime: booking?.startTime?.slice(11, 16) || '',
     endTime: booking?.endTime?.slice(11, 16) || '',
     paymentStatus: booking?.paymentStatus || 'UNPAID',
-    bookingStatus: booking?.bookingStatus || 'CONFIRMED',
     notes: booking?.notes || '',
   });
   const [error, setError] = useState('');
@@ -27,8 +28,13 @@ export default function BookingForm({ booking, onClose, onSaved }) {
     setForm((f) => ({ ...f, [field]: value }));
   }
 
+  // Submit a normal save (status follows payment on the backend)
   async function handleSubmit(e) {
     e.preventDefault();
+    await save({});
+  }
+
+  async function save(extra) {
     setError('');
     setSaving(true);
     try {
@@ -40,8 +46,8 @@ export default function BookingForm({ booking, onClose, onSaved }) {
           startTime: form.startTime,
           endTime: form.endTime,
           paymentStatus: form.paymentStatus,
-          bookingStatus: form.bookingStatus,
           notes: form.notes,
+          ...extra,
         });
       } else {
         await api.post('/bookings', {
@@ -66,6 +72,11 @@ export default function BookingForm({ booking, onClose, onSaved }) {
 
   const inputClass =
     'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand';
+
+  const derivedStatus = form.paymentStatus === 'PAID' ? 'Confirmed' : 'Waiting for Payment';
+  const currentStatus = booking?.bookingStatus;
+  const canCancel = isEdit && form.paymentStatus === 'UNPAID' && currentStatus !== 'CANCELLED';
+  const canComplete = isEdit && currentStatus === 'CONFIRMED';
 
   return (
     <div className="fixed inset-0 bg-black/40 z-40 flex items-center justify-center p-4">
@@ -108,7 +119,7 @@ export default function BookingForm({ booking, onClose, onSaved }) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-            <input type="date" value={form.bookingDate} onChange={(e) => update('bookingDate', e.target.value)} className={inputClass} required />
+            <input type="date" value={form.bookingDate} onChange={(e) => update('bookingDate', e.target.value)} className={inputClass} min={todayStr()} required />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -122,24 +133,15 @@ export default function BookingForm({ booking, onClose, onSaved }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Payment</label>
-              <select value={form.paymentStatus} onChange={(e) => update('paymentStatus', e.target.value)} className={inputClass}>
-                <option value="UNPAID">Unpaid</option>
-                <option value="PAID">Paid</option>
-              </select>
-            </div>
-            {isEdit && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select value={form.bookingStatus} onChange={(e) => update('bookingStatus', e.target.value)} className={inputClass}>
-                  <option value="CONFIRMED">Confirmed</option>
-                  <option value="COMPLETED">Completed</option>
-                  <option value="CANCELLED">Cancelled</option>
-                </select>
-              </div>
-            )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Payment</label>
+            <select value={form.paymentStatus} onChange={(e) => update('paymentStatus', e.target.value)} className={inputClass}>
+              <option value="UNPAID">Unpaid</option>
+              <option value="PAID">Paid</option>
+            </select>
+            <p className="text-xs text-gray-400 mt-1">
+              Status will be: <span className="font-medium text-gray-600">{derivedStatus}</span>
+            </p>
           </div>
 
           <div>
@@ -149,9 +151,34 @@ export default function BookingForm({ booking, onClose, onSaved }) {
 
           {error && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-3 py-2">{error}</div>}
 
-          <div className="flex justify-end gap-2 pt-2">
+          {isEdit && (canComplete || canCancel) && (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {canComplete && (
+                <button
+                  type="button"
+                  onClick={() => save({ bookingStatus: 'COMPLETED' })}
+                  disabled={saving}
+                  className="px-3 py-1.5 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-60"
+                >
+                  Mark as Completed
+                </button>
+              )}
+              {canCancel && (
+                <button
+                  type="button"
+                  onClick={() => save({ bookingStatus: 'CANCELLED' })}
+                  disabled={saving}
+                  className="px-3 py-1.5 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+                >
+                  Cancel Booking
+                </button>
+              )}
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
             <button type="button" onClick={onClose} className="px-4 py-2 text-sm rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50">
-              Cancel
+              Close
             </button>
             <button type="submit" disabled={saving} className="px-4 py-2 text-sm rounded-lg bg-brand text-white hover:bg-brand-dark disabled:opacity-60">
               {saving ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Booking'}

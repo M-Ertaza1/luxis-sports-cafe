@@ -1,6 +1,7 @@
 const prisma = require('../db');
 const { emitChange } = require('../utils/realtime');
 const { writeAuditLog } = require('../utils/audit');
+
 async function createItem(req, res) {
   const { name, category, price, itemType, unit, reorderThreshold } = req.body;
 
@@ -11,7 +12,8 @@ async function createItem(req, res) {
   if (!['STOCK', 'FRESH_ON_DEMAND'].includes(itemType)) {
     return res.status(400).json({ error: 'itemType must be STOCK or FRESH_ON_DEMAND' });
   }
-const item = await prisma.inventoryItem.create({
+
+  const item = await prisma.inventoryItem.create({
     data: { name, category, price, itemType, unit, reorderThreshold: reorderThreshold ?? null },
   });
 
@@ -24,7 +26,6 @@ const item = await prisma.inventoryItem.create({
   });
   emitChange('InventoryItem', 'CREATE', item);
   res.status(201).json(item);
-  
 }
 
 async function getItems(req, res) {
@@ -151,7 +152,7 @@ async function adjustStock(req, res) {
         newValue: { quantity: newQty, kitchen, change: quantityChange },
       }, tx);
 
-      return updatedStock;;
+      return updatedStock;
     });
 
     emitChange('KitchenStock', 'STOCK_ADJUST', result);
@@ -170,6 +171,35 @@ async function getItemStock(req, res) {
     where: { itemId: req.params.id },
   });
   res.json(stock);
+}
+
+async function getAllStock(req, res) {
+  try {
+    const stock = await prisma.kitchenStock.findMany({
+      include: {
+        item: { select: { name: true, unit: true, category: true } },
+      },
+      orderBy: { item: { name: 'asc' } },
+    });
+
+    const main = [];
+    const counter = [];
+    for (const row of stock) {
+      const entry = {
+        itemId: row.itemId,
+        name: row.item?.name || 'Unknown',
+        unit: row.item?.unit || '',
+        quantity: Number(row.quantity),
+      };
+      if (row.kitchen === 'MAIN') main.push(entry);
+      else if (row.kitchen === 'COUNTER') counter.push(entry);
+    }
+
+    res.json({ main, counter });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Could not load stock' });
+  }
 }
 
 async function addRecipeItem(req, res) {
@@ -229,4 +259,4 @@ async function removeRecipeItem(req, res) {
   }
 }
 
-module.exports = { createItem, getItems, getItemById, updateItem, deleteItem, adjustStock, getItemStock, addRecipeItem, getRecipe, removeRecipeItem };
+module.exports = { createItem, getItems, getItemById, updateItem, deleteItem, adjustStock, getItemStock, getAllStock, addRecipeItem, getRecipe, removeRecipeItem };

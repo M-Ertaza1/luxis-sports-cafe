@@ -24,6 +24,25 @@ async function createBooking(req, res) {
     return res.status(400).json({ error: 'End time must be after start time' });
   }
 
+  // No past date
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  if (bookingDate < todayStr) {
+    return res.status(400).json({ error: 'Cannot create a booking in the past' });
+  }
+
+  // If booking is today, the start time must be in the future
+  if (bookingDate === todayStr) {
+    const currentTime = now.toTimeString().slice(0, 5); // "HH:MM"
+    if (startTime <= currentTime) {
+      return res.status(400).json({ error: 'Start time must be in the future for a booking today' });
+    }
+  }
+
+  // Status follows payment: paid -> CONFIRMED, unpaid -> WAITING_PAYMENT
+  const finalPayment = paymentStatus === 'PAID' ? 'PAID' : 'UNPAID';
+  const derivedStatus = finalPayment === 'PAID' ? 'CONFIRMED' : 'WAITING_PAYMENT';
+
   try {
     const booking = await prisma.$transaction(async (tx) => {
       const arena = await tx.arena.findUnique({ where: { id: arenaId } });
@@ -58,7 +77,8 @@ async function createBooking(req, res) {
           bookingDate: new Date(bookingDate),
           startTime: new Date(`1970-01-01T${startTime}:00Z`),
           endTime: new Date(`1970-01-01T${endTime}:00Z`),
-          paymentStatus: paymentStatus || 'UNPAID',
+          paymentStatus: finalPayment,
+          bookingStatus: derivedStatus,
           notes: notes || null,
           price,
           createdById: req.user.userId,
@@ -140,9 +160,36 @@ async function updateBooking(req, res) {
 
   try {
     const updated = await prisma.$transaction(async (tx) => {
+      const existing = await tx.booking.findUnique({ where: { id } });
+      if (!existing) {
+        throw new Error('NOT_FOUND');
+      }
+
+      // Completed bookings are frozen
+      if (existing.bookingStatus === 'COMPLETED') {
+        throw new Error('COMPLETED_LOCKED');
+      }
+
+      // Determine the resulting payment status (default to existing)
+      const newPayment = paymentStatus ?? existing.paymentStatus;
+
+      // Cancellation only allowed while unpaid
       const wantsToCancel = bookingStatus === 'CANCELLED';
-      if (wantsToCancel && existing.paymentStatus === 'PAID') {
+      if (wantsToCancel && newPayment === 'PAID') {
         throw new Error('PAID_CANCEL');
+      }
+
+      // No moving a booking's date into the past
+      const now = new Date();
+      const todayStr = now.toISOString().slice(0, 10);
+      if (bookingDate && bookingDate < todayStr) {
+        throw new Error('PAST_DATE');
+      }
+      if (bookingDate === todayStr && startTime) {
+        const currentTime = now.toTimeString().slice(0, 5);
+        if (startTime <= currentTime) {
+          throw new Error('PAST_TIME');
+        }
       }
 
       const newDate = bookingDate ? new Date(bookingDate) : existing.bookingDate;
@@ -170,6 +217,16 @@ async function updateBooking(req, res) {
         throw new Error('OVERLAP');
       }
 
+      // Decide the resulting status:
+      // - explicit CANCELLED or COMPLETED requests are honored (admin actions)
+      // - otherwise status follows payment (paid -> CONFIRMED, unpaid -> WAITING_PAYMENT)
+      let newStatus;
+      if (bookingStatus === 'CANCELLED' || bookingStatus === 'COMPLETED') {
+        newStatus = bookingStatus;
+      } else {
+        newStatus = newPayment === 'PAID' ? 'CONFIRMED' : 'WAITING_PAYMENT';
+      }
+
       const updatedBooking = await tx.booking.update({
         where: { id },
         data: {
@@ -178,8 +235,8 @@ async function updateBooking(req, res) {
           bookingDate: newDate,
           startTime: newStart,
           endTime: newEnd,
-          paymentStatus: paymentStatus ?? existing.paymentStatus,
-          bookingStatus: bookingStatus ?? existing.bookingStatus,
+          paymentStatus: newPayment,
+          bookingStatus: newStatus,
           notes: notes ?? existing.notes,
         },
       });
@@ -203,6 +260,9 @@ async function updateBooking(req, res) {
     if (err.message === 'BAD_TIMES') return res.status(400).json({ error: 'End time must be after start time' });
     if (err.message === 'OVERLAP') return res.status(409).json({ error: 'This time slot overlaps an existing booking for this arena' });
     if (err.message === 'PAID_CANCEL') return res.status(400).json({ error: 'Cannot cancel a paid booking' });
+    if (err.message === 'COMPLETED_LOCKED') return res.status(400).json({ error: 'A completed booking cannot be edited' });
+    if (err.message === 'PAST_DATE') return res.status(400).json({ error: 'Cannot move a booking to a past date' });
+    if (err.message === 'PAST_TIME') return res.status(400).json({ error: 'Start time must be in the future for a booking today' });
 
     console.error(err);
     return res.status(500).json({ error: 'Could not update booking' });

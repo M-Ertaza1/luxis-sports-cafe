@@ -10,6 +10,7 @@ const {
   deleteItem,
   adjustStock,
   getItemStock,
+  getAllStock,
   addRecipeItem,
   getRecipe,
   removeRecipeItem,
@@ -17,6 +18,7 @@ const {
 
 router.post('/', verifyToken, requirePermission('inventory.create'), createItem);
 router.get('/', verifyToken, getItems);
+router.get('/stock/all', verifyToken, getAllStock);
 router.get('/:id', verifyToken, getItemById);
 router.put('/:id', verifyToken, requirePermission('inventory.update'), updateItem);
 router.delete('/:id', verifyToken, requirePermission('inventory.delete'), deleteItem);
