@@ -8,6 +8,8 @@ import Users from './pages/Users';
 import Arenas from './pages/Arenas';
 import Inventory from './pages/Inventory';
 import Kitchen from './pages/Kitchen';
+import Sales from './pages/Sales';
+import Activity from './pages/Activity';
 
 function App() {
   return (
@@ -64,7 +66,22 @@ function App() {
               </ProtectedRoute>
             }
           />
-         
+          <Route
+            path="/sales"
+            element={
+              <ProtectedRoute>
+                <Sales />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/activity"
+            element={
+              <ProtectedRoute>
+                <Activity />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

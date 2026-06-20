@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import api from '../api';
 import socket from '../socket';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, LayoutList, CalendarDays } from 'lucide-react';
 import BookingForm from '../components/BookingForm';
+import BookingCalendar from '../components/BookingCalendar';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { usePermission } from '../usePermission';
 
@@ -47,6 +48,7 @@ export default function Bookings() {
   const [editingBooking, setEditingBooking] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [view, setView] = useState('table');
   const allow = usePermission();
 
   function load() {
@@ -88,17 +90,33 @@ export default function Bookings() {
 
   return (
     <Layout>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <h1 className="text-2xl font-bold text-brand">Bookings</h1>
-        {allow('booking.create') && (
-          <button
-            onClick={() => { setEditingBooking(null); setShowForm(true); }}
-            className="flex items-center gap-2 bg-brand text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-dark transition"
-          >
-            <Plus size={18} />
-            New Booking
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+            <button
+              onClick={() => setView('table')}
+              className={`flex items-center gap-1.5 px-3 py-2 text-sm ${view === 'table' ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+            >
+              <LayoutList size={16} /> Table
+            </button>
+            <button
+              onClick={() => setView('calendar')}
+              className={`flex items-center gap-1.5 px-3 py-2 text-sm ${view === 'calendar' ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+            >
+              <CalendarDays size={16} /> Calendar
+            </button>
+          </div>
+          {allow('booking.create') && (
+            <button
+              onClick={() => { setEditingBooking(null); setShowForm(true); }}
+              className="flex items-center gap-2 bg-brand text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-dark transition"
+            >
+              <Plus size={18} />
+              New Booking
+            </button>
+          )}
+        </div>
       </div>
 
       {loading ? (
@@ -107,6 +125,11 @@ export default function Bookings() {
         <p className="text-red-600">{error}</p>
       ) : bookings.length === 0 ? (
         <p className="text-gray-400">No bookings yet.</p>
+      ) : view === 'calendar' ? (
+        <BookingCalendar
+          bookings={bookings}
+          onSelectBooking={(b) => { setEditingBooking(b); setShowForm(true); }}
+        />
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
