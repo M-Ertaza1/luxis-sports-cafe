@@ -6,6 +6,8 @@ import Dashboard from './pages/Dashboard';
 import Bookings from './pages/Bookings';
 import Users from './pages/Users';
 import Arenas from './pages/Arenas';
+import Inventory from './pages/Inventory';
+import Kitchen from './pages/Kitchen';
 
 function App() {
   return (
@@ -38,6 +40,31 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/arenas"
+            element={
+              <ProtectedRoute>
+                <Arenas />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/inventory"
+            element={
+              <ProtectedRoute>
+                <Inventory />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/kitchen"
+            element={
+              <ProtectedRoute>
+                <Kitchen />
+              </ProtectedRoute>
+            }
+          />
+         
         </Routes>
       </BrowserRouter>
     </AuthProvider>
