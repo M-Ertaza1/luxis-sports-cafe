@@ -20,14 +20,16 @@ function TransferForm({ onTransferred }) {
 
   // When an item is selected, fetch its Main Kitchen stock so we know what's available
   useEffect(() => {
-    if (!itemId) {
-      setMainStock(null);
-      return;
-    }
+    if (!itemId) return;
+    let cancelled = false;
     api.get(`/inventory/${itemId}/stock`).then((res) => {
+      if (cancelled) return;
       const main = res.data.find((s) => s.kitchen === 'MAIN');
       setMainStock(main ? Number(main.quantity) : 0);
-    }).catch(() => setMainStock(null));
+    }).catch(() => {
+      if (!cancelled) setMainStock(null);
+    });
+    return () => { cancelled = true; };
   }, [itemId]);
 
   async function handleSubmit(e) {
