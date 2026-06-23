@@ -18,7 +18,6 @@ function TransferForm({ onTransferred }) {
     api.get('/inventory?itemType=STOCK').then((res) => setStockItems(res.data)).catch(() => {});
   }, []);
 
-  // When an item is selected, fetch its Main Kitchen stock so we know what's available
   useEffect(() => {
     if (!itemId) return;
     let cancelled = false;
@@ -45,7 +44,6 @@ function TransferForm({ onTransferred }) {
       await api.post('/transfers', { itemId, quantity: Number(quantity) });
       setSuccess('Transfer completed.');
       setQuantity('');
-      // refresh the main stock display
       const res = await api.get(`/inventory/${itemId}/stock`);
       const main = res.data.find((s) => s.kitchen === 'MAIN');
       setMainStock(main ? Number(main.quantity) : 0);
@@ -58,21 +56,21 @@ function TransferForm({ onTransferred }) {
   }
 
   const inputClass =
-    'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand';
+    'w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand';
 
   const selectedItem = stockItems.find((s) => s.id === itemId);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 mb-6">
       <div className="flex items-center gap-2 mb-4">
-        <span className="font-bold text-gray-800">Main Kitchen</span>
-        <ArrowRight size={18} className="text-brand" />
-        <span className="font-bold text-gray-800">Counter Kitchen</span>
+        <span className="font-bold text-gray-800 dark:text-gray-100">Main Kitchen</span>
+        <ArrowRight size={18} className="text-brand dark:text-brand-light" />
+        <span className="font-bold text-gray-800 dark:text-gray-100">Counter Kitchen</span>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-3">
         <div className="flex-1 min-w-[180px]">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Item</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Item</label>
           <select value={itemId} onChange={(e) => setItemId(e.target.value)} className={inputClass}>
             <option value="">Select stock item</option>
             {stockItems.map((s) => (
@@ -81,7 +79,7 @@ function TransferForm({ onTransferred }) {
           </select>
         </div>
         <div className="w-32">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity</label>
           <input
             type="number"
             min="0"
@@ -103,12 +101,12 @@ function TransferForm({ onTransferred }) {
       </form>
 
       {itemId && mainStock !== null && (
-        <p className="text-sm text-gray-500 mt-3">
-          Available in Main Kitchen: <span className="font-medium text-gray-700">{mainStock} {selectedItem?.unit}</span>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
+          Available in Main Kitchen: <span className="font-medium text-gray-700 dark:text-gray-200">{mainStock} {selectedItem?.unit}</span>
         </p>
       )}
-      {error && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-3 py-2 mt-3">{error}</div>}
-      {success && <div className="bg-green-50 text-green-700 text-sm rounded-lg px-3 py-2 mt-3">{success}</div>}
+      {error && <div className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm rounded-lg px-3 py-2 mt-3">{error}</div>}
+      {success && <div className="bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm rounded-lg px-3 py-2 mt-3">{success}</div>}
     </div>
   );
 }
@@ -154,38 +152,38 @@ export default function Kitchen() {
 
   return (
     <Layout>
-      <h1 className="text-2xl font-bold text-brand mb-6">Kitchen Transfers</h1>
+      <h1 className="text-2xl font-bold text-brand dark:text-brand-light mb-6">Kitchen Transfers</h1>
 
       {allow('transfer.create') && <TransferForm onTransferred={loadAll} />}
 
-      <h2 className="font-bold text-gray-800 mb-3">Current Stock</h2>
+      <h2 className="font-bold text-gray-800 dark:text-gray-100 mb-3">Current Stock</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="px-4 py-3 bg-brand text-white font-medium text-sm">Main Kitchen</div>
           {stock.main.length === 0 ? (
-            <p className="text-sm text-gray-400 px-4 py-4">No stock in Main Kitchen.</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 px-4 py-4">No stock in Main Kitchen.</p>
           ) : (
-            <ul className="divide-y divide-gray-100">
+            <ul className="divide-y divide-gray-100 dark:divide-gray-700">
               {stock.main.map((s) => (
                 <li key={s.itemId} className="flex justify-between px-4 py-2.5 text-sm">
-                  <span className="text-gray-800">{s.name}</span>
-                  <span className="font-medium text-gray-700">{s.quantity} <span className="text-gray-400 font-normal">{s.unit}</span></span>
+                  <span className="text-gray-800 dark:text-gray-200">{s.name}</span>
+                  <span className="font-medium text-gray-700 dark:text-gray-200">{s.quantity} <span className="text-gray-400 dark:text-gray-500 font-normal">{s.unit}</span></span>
                 </li>
               ))}
             </ul>
           )}
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="px-4 py-3 bg-gray-700 text-white font-medium text-sm">Counter Kitchen</div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="px-4 py-3 bg-gray-700 dark:bg-gray-600 text-white font-medium text-sm">Counter Kitchen</div>
           {stock.counter.length === 0 ? (
-            <p className="text-sm text-gray-400 px-4 py-4">No stock in Counter Kitchen.</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 px-4 py-4">No stock in Counter Kitchen.</p>
           ) : (
-            <ul className="divide-y divide-gray-100">
+            <ul className="divide-y divide-gray-100 dark:divide-gray-700">
               {stock.counter.map((s) => (
                 <li key={s.itemId} className="flex justify-between px-4 py-2.5 text-sm">
-                  <span className="text-gray-800">{s.name}</span>
-                  <span className="font-medium text-gray-700">{s.quantity} <span className="text-gray-400 font-normal">{s.unit}</span></span>
+                  <span className="text-gray-800 dark:text-gray-200">{s.name}</span>
+                  <span className="font-medium text-gray-700 dark:text-gray-200">{s.quantity} <span className="text-gray-400 dark:text-gray-500 font-normal">{s.unit}</span></span>
                 </li>
               ))}
             </ul>
@@ -193,16 +191,16 @@ export default function Kitchen() {
         </div>
       </div>
 
-      <h2 className="font-bold text-gray-800 mb-3">Transfer History</h2>
+      <h2 className="font-bold text-gray-800 dark:text-gray-100 mb-3">Transfer History</h2>
       {loading ? (
-        <p className="text-gray-500">Loading…</p>
+        <p className="text-gray-500 dark:text-gray-400">Loading…</p>
       ) : transfers.length === 0 ? (
-        <p className="text-gray-400">No transfers yet.</p>
+        <p className="text-gray-400 dark:text-gray-500">No transfers yet.</p>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-600">
+              <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-600 dark:text-gray-400">
                 <tr>
                   <th className="text-left px-4 py-3 font-medium">Item</th>
                   <th className="text-left px-4 py-3 font-medium">Quantity</th>
@@ -213,16 +211,16 @@ export default function Kitchen() {
               </thead>
               <tbody>
                 {transfers.map((t) => (
-                  <tr key={t.id} className="border-t border-gray-100 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-800">{t.item?.name}</td>
-                    <td className="px-4 py-3 text-gray-700">{Number(t.quantity)} {t.item?.unit}</td>
+                  <tr key={t.id} className="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{t.item?.name}</td>
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-200">{Number(t.quantity)} {t.item?.unit}</td>
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center gap-1 text-gray-600">
+                      <span className="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300">
                         {t.fromKitchen} <ArrowRight size={14} /> {t.toKitchen}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{t.transferredBy?.name}</td>
-                    <td className="px-4 py-3 text-gray-500">{fmtDateTime(t.transferredAt)}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{t.transferredBy?.name}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{fmtDateTime(t.transferredAt)}</td>
                   </tr>
                 ))}
               </tbody>

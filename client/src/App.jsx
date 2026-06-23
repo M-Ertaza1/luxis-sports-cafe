@@ -10,6 +10,7 @@ import Inventory from './pages/Inventory';
 import Kitchen from './pages/Kitchen';
 import Sales from './pages/Sales';
 import Activity from './pages/Activity';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -79,6 +80,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Activity />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
               </ProtectedRoute>
             }
           />

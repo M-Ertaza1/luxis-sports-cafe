@@ -51,17 +51,17 @@ export default function BookingCalendar({ bookings, onSelectBooking }) {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-bold text-gray-800">{MONTHS[month]} {year}</h2>
+        <h2 className="font-bold text-gray-800 dark:text-gray-100">{MONTHS[month]} {year}</h2>
         <div className="flex gap-1">
-          <button onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-600" aria-label="Previous month">
+          <button onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300" aria-label="Previous month">
             <ChevronLeft size={18} />
           </button>
-          <button onClick={() => setViewDate(new Date())} className="px-3 py-1.5 rounded-lg hover:bg-gray-100 text-sm text-gray-600">
+          <button onClick={() => setViewDate(new Date())} className="px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-600 dark:text-gray-300">
             Today
           </button>
-          <button onClick={nextMonth} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-600" aria-label="Next month">
+          <button onClick={nextMonth} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300" aria-label="Next month">
             <ChevronRight size={18} />
           </button>
         </div>
@@ -69,7 +69,7 @@ export default function BookingCalendar({ bookings, onSelectBooking }) {
 
       <div className="grid grid-cols-7 gap-1 mb-1">
         {WEEKDAYS.map((w) => (
-          <div key={w} className="text-center text-xs font-medium text-gray-400 py-1">{w}</div>
+          <div key={w} className="text-center text-xs font-medium text-gray-400 dark:text-gray-500 py-1">{w}</div>
         ))}
       </div>
 
@@ -81,10 +81,10 @@ export default function BookingCalendar({ bookings, onSelectBooking }) {
             <div
               key={day}
               className={`min-h-[90px] border rounded-lg p-1.5 ${
-                isToday(day) ? 'border-brand bg-brand/5' : 'border-gray-100'
+                isToday(day) ? 'border-brand bg-brand/5 dark:bg-brand/20' : 'border-gray-100 dark:border-gray-700'
               }`}
             >
-              <div className={`text-xs font-medium mb-1 ${isToday(day) ? 'text-brand' : 'text-gray-500'}`}>
+              <div className={`text-xs font-medium mb-1 ${isToday(day) ? 'text-brand dark:text-brand-light' : 'text-gray-500 dark:text-gray-400'}`}>
                 {day}
               </div>
               <div className="space-y-1">
@@ -99,7 +99,7 @@ export default function BookingCalendar({ bookings, onSelectBooking }) {
                   </button>
                 ))}
                 {dayBookings.length > 3 && (
-                  <div className="text-[10px] text-gray-400 px-1">+{dayBookings.length - 3} more</div>
+                  <div className="text-[10px] text-gray-400 dark:text-gray-500 px-1">+{dayBookings.length - 3} more</div>
                 )}
               </div>
             </div>

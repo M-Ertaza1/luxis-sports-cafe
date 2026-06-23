@@ -4,15 +4,14 @@ import api from '../api';
 import socket from '../socket';
 
 const actionColors = {
-  CREATE: 'bg-green-100 text-green-700',
-  UPDATE: 'bg-blue-100 text-blue-700',
-  DELETE: 'bg-red-100 text-red-700',
-  SALE: 'bg-purple-100 text-purple-700',
-  TRANSFER: 'bg-amber-100 text-amber-700',
-  STOCK_ADJUST: 'bg-gray-100 text-gray-600',
+  CREATE: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+  UPDATE: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+  DELETE: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+  SALE: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+  TRANSFER: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+  STOCK_ADJUST: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
 };
 
-// Helper to get a YYYY-MM-DD string for N days ago
 function daysAgo(n) {
   const d = new Date();
   d.setDate(d.getDate() - n);
@@ -27,7 +26,6 @@ export default function Activity() {
   const [customFrom, setCustomFrom] = useState('');
   const [customTo, setCustomTo] = useState('');
 
-  // Work out the from/to dates based on the chosen preset
   function getRange() {
     switch (preset) {
       case 'today':
@@ -77,7 +75,7 @@ export default function Activity() {
       className={`px-3 py-1.5 text-sm rounded-lg border transition ${
         preset === key
           ? 'bg-brand text-white border-brand'
-          : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+          : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
       }`}
     >
       {label}
@@ -86,7 +84,7 @@ export default function Activity() {
 
   return (
     <Layout>
-      <h1 className="text-2xl font-bold text-brand mb-6">Activity Log</h1>
+      <h1 className="text-2xl font-bold text-brand dark:text-brand-light mb-6">Activity Log</h1>
 
       <div className="flex flex-wrap items-center gap-2 mb-4">
         {presetBtn('all', 'All')}
@@ -102,28 +100,28 @@ export default function Activity() {
               type="date"
               value={customFrom}
               onChange={(e) => setCustomFrom(e.target.value)}
-              className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+              className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
             />
-            <span className="text-gray-400 text-sm">to</span>
+            <span className="text-gray-400 dark:text-gray-500 text-sm">to</span>
             <input
               type="date"
               value={customTo}
               onChange={(e) => setCustomTo(e.target.value)}
-              className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+              className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
             />
           </div>
         )}
       </div>
 
       {loading ? (
-        <p className="text-gray-500">Loading…</p>
+        <p className="text-gray-500 dark:text-gray-400">Loading…</p>
       ) : logs.length === 0 ? (
-        <p className="text-gray-400">No activity in this period.</p>
+        <p className="text-gray-400 dark:text-gray-500">No activity in this period.</p>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-600">
+              <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-600 dark:text-gray-400">
                 <tr>
                   <th className="text-left px-4 py-3 font-medium">User</th>
                   <th className="text-left px-4 py-3 font-medium">Action</th>
@@ -133,15 +131,15 @@ export default function Activity() {
               </thead>
               <tbody>
                 {logs.map((log) => (
-                  <tr key={log.id} className="border-t border-gray-100 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-800">{log.user?.name || '—'}</td>
+                  <tr key={log.id} className="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{log.user?.name || '—'}</td>
                     <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${actionColors[log.actionType] || 'bg-gray-100 text-gray-600'}`}>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${actionColors[log.actionType] || 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'}`}>
                         {log.actionType}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{log.entityType}</td>
-                    <td className="px-4 py-3 text-gray-500">{fmtDateTime(log.createdAt)}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{log.entityType}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{fmtDateTime(log.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>

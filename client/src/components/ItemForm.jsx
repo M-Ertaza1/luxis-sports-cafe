@@ -3,26 +3,13 @@ import { X } from 'lucide-react';
 import api from '../api';
 
 const CATEGORIES = [
-  'Beverages',
-  'Soft Drinks',
-  'Water',
-  'Hot Drinks',
-  'Snacks',
-  'Chips',
-  'Burgers',
-  'Sandwiches',
-  'Wraps & Rolls',
-  'Fast Food',
-  'Bakery',
-  'Frozen',
-  'Ingredients',
-  'Desserts',
+  'Beverages', 'Soft Drinks', 'Water', 'Hot Drinks', 'Snacks', 'Chips',
+  'Burgers', 'Sandwiches', 'Wraps & Rolls', 'Fast Food', 'Bakery', 'Frozen',
+  'Ingredients', 'Desserts',
 ];
 
 export default function ItemForm({ item, onClose, onSaved }) {
   const isEdit = Boolean(item);
-
-  // If editing an item whose category isn't in our list, treat it as "Other"
   const initialCategoryIsKnown = item?.category ? CATEGORIES.includes(item.category) : true;
 
   const [form, setForm] = useState({
@@ -45,7 +32,6 @@ export default function ItemForm({ item, onClose, onSaved }) {
     e.preventDefault();
     setError('');
 
-    // Resolve the actual category: either the dropdown choice, or the custom text
     const finalCategory = form.category === 'Other' ? form.customCategory.trim() : form.category;
     if (!finalCategory) {
       setError('Please choose or enter a category.');
@@ -79,25 +65,25 @@ export default function ItemForm({ item, onClose, onSaved }) {
   }
 
   const inputClass =
-    'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand';
+    'w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand';
 
   return (
     <div className="fixed inset-0 bg-black/40 z-40 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-bold text-brand">{isEdit ? 'Edit Item' : 'New Item'}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="Close">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg font-bold text-brand dark:text-brand-light">{isEdit ? 'Edit Item' : 'New Item'}</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" aria-label="Close">
             <X size={20} />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="px-6 py-4 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Item Name</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Item Name</label>
             <input value={form.name} onChange={(e) => update('name', e.target.value)} className={inputClass} required />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
             <select value={form.category} onChange={(e) => update('category', e.target.value)} className={inputClass} required>
               <option value="">Select a category</option>
               {CATEGORIES.map((c) => (
@@ -118,17 +104,17 @@ export default function ItemForm({ item, onClose, onSaved }) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit</label>
               <input value={form.unit} onChange={(e) => update('unit', e.target.value)} className={inputClass} placeholder="bottles, pieces…" required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Price (Rs)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price (Rs)</label>
               <input type="number" min="0" value={form.price} onChange={(e) => update('price', e.target.value)} className={inputClass} required />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
             <select
               value={form.itemType}
               onChange={(e) => update('itemType', e.target.value)}
@@ -138,21 +124,21 @@ export default function ItemForm({ item, onClose, onSaved }) {
               <option value="STOCK">Stock Item</option>
               <option value="FRESH_ON_DEMAND">Fresh on Demand</option>
             </select>
-            {isEdit && <p className="text-xs text-gray-400 mt-1">Item type can't be changed after creation.</p>}
+            {isEdit && <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Item type can't be changed after creation.</p>}
           </div>
 
           {form.itemType === 'STOCK' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Low-Stock Alert Threshold (optional)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Low-Stock Alert Threshold (optional)</label>
               <input type="number" min="0" value={form.reorderThreshold} onChange={(e) => update('reorderThreshold', e.target.value)} className={inputClass} placeholder="e.g. 30" />
-              <p className="text-xs text-gray-400 mt-1">Alert when stock falls below this in any kitchen.</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Alert when stock falls below this in any kitchen.</p>
             </div>
           )}
 
-          {error && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-3 py-2">{error}</div>}
+          {error && <div className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm rounded-lg px-3 py-2">{error}</div>}
 
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50">Cancel</button>
+            <button type="button" onClick={onClose} className="px-4 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
             <button type="submit" disabled={saving} className="px-4 py-2 text-sm rounded-lg bg-brand text-white hover:bg-brand-dark disabled:opacity-60">
               {saving ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Item'}
             </button>

@@ -46,16 +46,16 @@ function SaleForm({ onSold }) {
   }
 
   const inputClass =
-    'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand';
+    'w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand';
 
   const lineTotal = selectedItem && quantity ? Number(selectedItem.price) * Number(quantity) : null;
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6">
-      <h2 className="font-bold text-gray-800 mb-4">Record a Sale</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 mb-6">
+      <h2 className="font-bold text-gray-800 dark:text-gray-100 mb-4">Record a Sale</h2>
       <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-3">
         <div className="flex-1 min-w-[180px]">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Item</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Item</label>
           <select value={itemId} onChange={(e) => setItemId(e.target.value)} className={inputClass}>
             <option value="">Select item</option>
             {items.map((i) => (
@@ -64,14 +64,14 @@ function SaleForm({ onSold }) {
           </select>
         </div>
         <div className="w-40">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Kitchen</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kitchen</label>
           <select value={kitchen} onChange={(e) => setKitchen(e.target.value)} className={inputClass}>
             <option value="MAIN">Main Kitchen</option>
             <option value="COUNTER">Counter Kitchen</option>
           </select>
         </div>
         <div className="w-28">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity</label>
           <input
             type="number"
             min="0"
@@ -93,12 +93,12 @@ function SaleForm({ onSold }) {
       </form>
 
       {lineTotal !== null && (
-        <p className="text-sm text-gray-500 mt-3">
-          Total: <span className="font-medium text-gray-700">Rs {lineTotal.toLocaleString()}</span>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
+          Total: <span className="font-medium text-gray-700 dark:text-gray-200">Rs {lineTotal.toLocaleString()}</span>
         </p>
       )}
-      {error && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-3 py-2 mt-3">{error}</div>}
-      {success && <div className="bg-green-50 text-green-700 text-sm rounded-lg px-3 py-2 mt-3">{success}</div>}
+      {error && <div className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm rounded-lg px-3 py-2 mt-3">{error}</div>}
+      {success && <div className="bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm rounded-lg px-3 py-2 mt-3">{success}</div>}
     </div>
   );
 }
@@ -135,16 +135,16 @@ export default function Sales() {
 
   return (
     <Layout>
-      <h1 className="text-2xl font-bold text-brand mb-6">Sales</h1>
+      <h1 className="text-2xl font-bold text-brand dark:text-brand-light mb-6">Sales</h1>
 
       {allow('sale.create') && <SaleForm onSold={loadSales} />}
 
       <div className="flex items-center justify-between mb-3">
-        <h2 className="font-bold text-gray-800">Sales History</h2>
+        <h2 className="font-bold text-gray-800 dark:text-gray-100">Sales History</h2>
         <select
           value={kitchenFilter}
           onChange={(e) => setKitchenFilter(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+          className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
         >
           <option value="">All Kitchens</option>
           <option value="MAIN">Main Kitchen</option>
@@ -153,14 +153,14 @@ export default function Sales() {
       </div>
 
       {loading ? (
-        <p className="text-gray-500">Loading…</p>
+        <p className="text-gray-500 dark:text-gray-400">Loading…</p>
       ) : sales.length === 0 ? (
-        <p className="text-gray-400">No sales recorded.</p>
+        <p className="text-gray-400 dark:text-gray-500">No sales recorded.</p>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-600">
+              <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-600 dark:text-gray-400">
                 <tr>
                   <th className="text-left px-4 py-3 font-medium">Item</th>
                   <th className="text-left px-4 py-3 font-medium">Kitchen</th>
@@ -173,21 +173,21 @@ export default function Sales() {
               </thead>
               <tbody>
                 {sales.map((s) => (
-                  <tr key={s.id} className="border-t border-gray-100 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-800">{s.item?.name}</td>
-                    <td className="px-4 py-3 text-gray-600">{s.kitchen}</td>
-                    <td className="px-4 py-3 text-gray-700">{Number(s.quantity)}</td>
-                    <td className="px-4 py-3 text-gray-600">Rs {Number(s.unitPrice).toLocaleString()}</td>
-                    <td className="px-4 py-3 font-medium text-gray-800">Rs {Number(s.totalAmount).toLocaleString()}</td>
-                    <td className="px-4 py-3 text-gray-600">{s.soldBy?.name}</td>
-                    <td className="px-4 py-3 text-gray-500">{fmtDateTime(s.soldAt)}</td>
+                  <tr key={s.id} className="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{s.item?.name}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{s.kitchen}</td>
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-200">{Number(s.quantity)}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">Rs {Number(s.unitPrice).toLocaleString()}</td>
+                    <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">Rs {Number(s.totalAmount).toLocaleString()}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{s.soldBy?.name}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{fmtDateTime(s.soldAt)}</td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
-                <tr className="border-t border-gray-200 bg-gray-50">
-                  <td colSpan={4} className="px-4 py-3 text-right font-medium text-gray-600">Total</td>
-                  <td className="px-4 py-3 font-bold text-brand">Rs {total.toLocaleString()}</td>
+                <tr className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                  <td colSpan={4} className="px-4 py-3 text-right font-medium text-gray-600 dark:text-gray-400">Total</td>
+                  <td className="px-4 py-3 font-bold text-brand dark:text-brand-light">Rs {total.toLocaleString()}</td>
                   <td colSpan={2}></td>
                 </tr>
               </tfoot>

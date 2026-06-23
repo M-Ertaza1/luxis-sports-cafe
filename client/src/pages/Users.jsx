@@ -13,9 +13,9 @@ const roleLabels = {
 };
 
 const roleBadge = {
-  SUPER_ADMIN: 'bg-purple-100 text-purple-700',
-  SECONDARY_ADMIN: 'bg-blue-100 text-blue-700',
-  VIEWER: 'bg-gray-100 text-gray-600',
+  SUPER_ADMIN: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+  SECONDARY_ADMIN: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+  VIEWER: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
 };
 
 function UserForm({ onClose, onSaved }) {
@@ -43,42 +43,42 @@ function UserForm({ onClose, onSaved }) {
   }
 
   const inputClass =
-    'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand';
+    'w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand';
 
   return (
     <div className="fixed inset-0 bg-black/40 z-40 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-bold text-brand">Add User</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="Close">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg font-bold text-brand dark:text-brand-light">Add User</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" aria-label="Close">
             <X size={20} />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="px-6 py-4 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
             <input value={form.name} onChange={(e) => update('name', e.target.value)} className={inputClass} required />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
             <input type="email" value={form.email} onChange={(e) => update('email', e.target.value)} className={inputClass} required />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
             <input type="password" value={form.password} onChange={(e) => update('password', e.target.value)} className={inputClass} required minLength={8} />
-            <p className="text-xs text-gray-400 mt-1">At least 8 characters.</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">At least 8 characters.</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
             <select value={form.role} onChange={(e) => update('role', e.target.value)} className={inputClass}>
               <option value="VIEWER">Viewer</option>
               <option value="SECONDARY_ADMIN">Secondary Admin</option>
               <option value="SUPER_ADMIN">Super Admin</option>
             </select>
           </div>
-          {error && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-3 py-2">{error}</div>}
+          {error && <div className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm rounded-lg px-3 py-2">{error}</div>}
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50">Cancel</button>
+            <button type="button" onClick={onClose} className="px-4 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
             <button type="submit" disabled={saving} className="px-4 py-2 text-sm rounded-lg bg-brand text-white hover:bg-brand-dark disabled:opacity-60">
               {saving ? 'Creating…' : 'Create User'}
             </button>
@@ -134,7 +134,7 @@ export default function Users() {
   return (
     <Layout>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-brand">Users</h1>
+        <h1 className="text-2xl font-bold text-brand dark:text-brand-light">Users</h1>
         <button
           onClick={() => setShowForm(true)}
           className="flex items-center gap-2 bg-brand text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-dark transition"
@@ -144,15 +144,15 @@ export default function Users() {
         </button>
       </div>
 
-      {error && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-3 py-2 mb-4">{error}</div>}
+      {error && <div className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm rounded-lg px-3 py-2 mb-4">{error}</div>}
 
       {loading ? (
-        <p className="text-gray-500">Loading users…</p>
+        <p className="text-gray-500 dark:text-gray-400">Loading users…</p>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-600">
+              <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-600 dark:text-gray-400">
                 <tr>
                   <th className="text-left px-4 py-3 font-medium">Name</th>
                   <th className="text-left px-4 py-3 font-medium">Email</th>
@@ -162,12 +162,12 @@ export default function Users() {
               </thead>
               <tbody>
                 {users.map((u) => (
-                  <tr key={u.id} className="border-t border-gray-100 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-800">
+                  <tr key={u.id} className="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">
                       {u.name}
-                      {u.id === currentUser?.id && <span className="text-xs text-gray-400 ml-2">(you)</span>}
+                      {u.id === currentUser?.id && <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">(you)</span>}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{u.email}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{u.email}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${roleBadge[u.role?.name] || ''}`}>
                         {roleLabels[u.role?.name] || u.role?.name}
@@ -178,7 +178,7 @@ export default function Users() {
                         {u.id !== currentUser?.id && (
                           <button
                             onClick={() => setDeleteTarget(u)}
-                            className="text-gray-400 hover:text-red-600"
+                            className="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400"
                             aria-label="Remove user"
                           >
                             <Trash2 size={16} />

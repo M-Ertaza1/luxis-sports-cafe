@@ -1,12 +1,20 @@
 const prisma = require('../db');
 
+// Build a Date at UTC midnight for a given YYYY-MM-DD string
+function utcMidnight(dateStr) {
+  return new Date(`${dateStr}T00:00:00.000Z`);
+}
+
 async function getDashboard(req, res) {
   try {
+    // Use the server's local "today" as a YYYY-MM-DD string, then build UTC
+    // boundaries that match how bookingDate is stored (UTC midnight).
     const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const todayStr = now.toISOString().slice(0, 10);
+    const todayStart = utcMidnight(todayStr);
+    const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
 
-    // 1. Today's bookings
+    // 1. Today's bookings (today only)
     const todaysBookings = await prisma.booking.findMany({
       where: {
         bookingDate: { gte: todayStart, lt: todayEnd },
@@ -16,11 +24,11 @@ async function getDashboard(req, res) {
       orderBy: { startTime: 'asc' },
     });
 
-    // 2. Upcoming bookings (future dates, next 10)
+    // 2. Upcoming bookings (strictly future dates, next 10)
     const upcomingBookings = await prisma.booking.findMany({
       where: {
         bookingDate: { gte: todayEnd },
-        bookingStatus: { not: 'CANCELLED' },
+        bookingStatus: { notIn: ['CANCELLED', 'COMPLETED'] },
       },
       include: { arena: { select: { name: true, sportType: true } } },
       orderBy: [{ bookingDate: 'asc' }, { startTime: 'asc' }],
@@ -130,7 +138,6 @@ async function getAnalytics(req, res) {
     }));
 
     // Most-booked arenas by booking count (with revenue), within the period
-    // Count non-cancelled bookings created in the period
     const bookingsByArena = await prisma.booking.groupBy({
       by: ['arenaId'],
       where: {
@@ -165,4 +172,4 @@ async function getAnalytics(req, res) {
   }
 }
 
-module.exports = { getDashboard ,getAnalytics };
+module.exports = { getDashboard, getAnalytics };

@@ -17,10 +17,10 @@ const sportColors = {
 
 function StatusBadge({ status }) {
   const styles = {
-    WAITING_PAYMENT: 'bg-amber-100 text-amber-700',
-    CONFIRMED: 'bg-blue-100 text-blue-700',
-    COMPLETED: 'bg-green-100 text-green-700',
-    CANCELLED: 'bg-gray-200 text-gray-500',
+    WAITING_PAYMENT: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+    CONFIRMED: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+    COMPLETED: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+    CANCELLED: 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400',
   };
   const labels = {
     WAITING_PAYMENT: 'Waiting Payment',
@@ -39,7 +39,9 @@ function PaymentBadge({ status }) {
   return (
     <span
       className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-        status === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+        status === 'PAID'
+          ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
+          : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
       }`}
     >
       {status}
@@ -98,18 +100,18 @@ export default function Bookings() {
   return (
     <Layout>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <h1 className="text-2xl font-bold text-brand">Bookings</h1>
+        <h1 className="text-2xl font-bold text-brand dark:text-brand-light">Bookings</h1>
         <div className="flex items-center gap-2">
-          <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+          <div className="flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
             <button
               onClick={() => setView('table')}
-              className={`flex items-center gap-1.5 px-3 py-2 text-sm ${view === 'table' ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+              className={`flex items-center gap-1.5 px-3 py-2 text-sm ${view === 'table' ? 'bg-brand text-white' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
             >
               <LayoutList size={16} /> Table
             </button>
             <button
               onClick={() => setView('calendar')}
-              className={`flex items-center gap-1.5 px-3 py-2 text-sm ${view === 'calendar' ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+              className={`flex items-center gap-1.5 px-3 py-2 text-sm ${view === 'calendar' ? 'bg-brand text-white' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
             >
               <CalendarDays size={16} /> Calendar
             </button>
@@ -127,21 +129,21 @@ export default function Bookings() {
       </div>
 
       {loading ? (
-        <p className="text-gray-500">Loading bookings…</p>
+        <p className="text-gray-500 dark:text-gray-400">Loading bookings…</p>
       ) : error ? (
-        <p className="text-red-600">{error}</p>
+        <p className="text-red-600 dark:text-red-400">{error}</p>
       ) : bookings.length === 0 ? (
-        <p className="text-gray-400">No bookings yet.</p>
+        <p className="text-gray-400 dark:text-gray-500">No bookings yet.</p>
       ) : view === 'calendar' ? (
         <BookingCalendar
           bookings={bookings}
           onSelectBooking={(b) => { setEditingBooking(b); setShowForm(true); }}
         />
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-600">
+              <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-600 dark:text-gray-400">
                 <tr>
                   <th className="text-left px-4 py-3 font-medium">Customer</th>
                   <th className="text-left px-4 py-3 font-medium">Arena</th>
@@ -155,20 +157,20 @@ export default function Bookings() {
               </thead>
               <tbody>
                 {bookings.map((b) => (
-                  <tr key={b.id} className="border-t border-gray-100 hover:bg-gray-50">
+                  <tr key={b.id} className="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                     <td className="px-4 py-3">
-                      <div className="font-medium text-gray-800">{b.customerName}</div>
-                      <div className="text-gray-400 text-xs">{b.customerPhone}</div>
+                      <div className="font-medium text-gray-800 dark:text-gray-100">{b.customerName}</div>
+                      <div className="text-gray-400 dark:text-gray-500 text-xs">{b.customerPhone}</div>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-200">
                       <span className="inline-flex items-center gap-1.5">
                         <span className={`w-2 h-2 rounded-full ${sportColors[b.arena?.sportType] || 'bg-gray-300'}`} />
                         {b.arena?.name}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{fmtDate(b.bookingDate)}</td>
-                    <td className="px-4 py-3 text-gray-600">{fmtTime(b.startTime)}–{fmtTime(b.endTime)}</td>
-                    <td className="px-4 py-3 text-gray-700">Rs {Number(b.price).toLocaleString()}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{fmtDate(b.bookingDate)}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{fmtTime(b.startTime)}–{fmtTime(b.endTime)}</td>
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-200">Rs {Number(b.price).toLocaleString()}</td>
                     <td className="px-4 py-3"><PaymentBadge status={b.paymentStatus} /></td>
                     <td className="px-4 py-3"><StatusBadge status={b.bookingStatus} /></td>
                     {showActions && (
@@ -177,7 +179,7 @@ export default function Bookings() {
                           {allow('booking.update') && b.bookingStatus !== 'COMPLETED' && (
                             <button
                               onClick={() => { setEditingBooking(b); setShowForm(true); }}
-                              className="text-gray-400 hover:text-brand"
+                              className="text-gray-400 dark:text-gray-500 hover:text-brand dark:hover:text-brand-light"
                               aria-label="Edit"
                             >
                               <Pencil size={16} />
@@ -186,7 +188,7 @@ export default function Bookings() {
                           {allow('booking.delete') && (
                             <button
                               onClick={() => setDeleteTarget(b)}
-                              className="text-gray-400 hover:text-red-600"
+                              className="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400"
                               aria-label="Delete"
                             >
                               <Trash2 size={16} />

@@ -21,7 +21,6 @@ export default function RecipeManager({ item, onClose, onChanged }) {
 
   useEffect(() => {
     loadRecipe();
-    // Load all stock items to populate the ingredient dropdown
     api
       .get('/inventory?itemType=STOCK')
       .then((res) => setStockItems(res.data))
@@ -66,47 +65,46 @@ export default function RecipeManager({ item, onClose, onChanged }) {
   }
 
   const inputClass =
-    'border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand';
+    'border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand';
 
-  // Stock items not already in the recipe (avoid duplicates in dropdown)
   const usedIds = recipe.map((r) => r.ingredientItemId);
   const availableStock = stockItems.filter((s) => !usedIds.includes(s.id));
 
   return (
     <div className="fixed inset-0 bg-black/40 z-40 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <h2 className="text-lg font-bold text-brand">Recipe</h2>
-            <p className="text-sm text-gray-500">{item.name}</p>
+            <h2 className="text-lg font-bold text-brand dark:text-brand-light">Recipe</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{item.name}</p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="Close">
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" aria-label="Close">
             <X size={20} />
           </button>
         </div>
 
         <div className="px-6 py-4 space-y-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
             Define which stock ingredients this item consumes. When sold, these are deducted automatically from the kitchen's stock.
           </p>
 
           {loading ? (
-            <p className="text-gray-500 text-sm">Loading…</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Loading…</p>
           ) : recipe.length === 0 ? (
-            <p className="text-sm text-gray-400">No ingredients defined yet.</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">No ingredients defined yet.</p>
           ) : (
-            <div className="border border-gray-200 rounded-xl divide-y divide-gray-100">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-xl divide-y divide-gray-100 dark:divide-gray-700">
               {recipe.map((r) => (
                 <div key={r.id} className="flex items-center justify-between px-4 py-3">
-                  <span className="text-sm text-gray-800">{r.ingredientItem?.name}</span>
+                  <span className="text-sm text-gray-800 dark:text-gray-200">{r.ingredientItem?.name}</span>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
                       {Number(r.quantityRequired)} {r.ingredientItem?.unit}
                     </span>
                     <button
                       onClick={() => removeIngredient(r.id)}
                       disabled={busy}
-                      className="text-gray-400 hover:text-red-600 disabled:opacity-50"
+                      className="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 disabled:opacity-50"
                       aria-label="Remove ingredient"
                     >
                       <Trash2 size={15} />
@@ -117,8 +115,8 @@ export default function RecipeManager({ item, onClose, onChanged }) {
             </div>
           )}
 
-          <div className="border-t border-gray-200 pt-4">
-            <p className="text-sm font-medium text-gray-700 mb-2">Add Ingredient</p>
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Add Ingredient</p>
             <div className="flex flex-wrap items-center gap-2">
               <select
                 value={newIngredient}
@@ -149,10 +147,10 @@ export default function RecipeManager({ item, onClose, onChanged }) {
             </div>
           </div>
 
-          {error && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-3 py-2">{error}</div>}
+          {error && <div className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm rounded-lg px-3 py-2">{error}</div>}
         </div>
 
-        <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
+        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
           <button onClick={onClose} className="px-4 py-2 text-sm rounded-lg bg-brand text-white hover:bg-brand-dark">Done</button>
         </div>
       </div>

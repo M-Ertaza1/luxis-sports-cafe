@@ -8,6 +8,7 @@ import {
   ScrollText,
   Users as UsersIcon,
   DollarSign,
+  Settings as SettingsIcon,
 } from 'lucide-react';
 import { usePermission } from '../usePermission';
 
@@ -73,6 +74,11 @@ export default function Sidebar({ open, onClose }) {
               Arenas & Pricing
             </NavLink>
           )}
+
+          <NavLink to="/settings" onClick={onClose} className={linkClass}>
+            <SettingsIcon size={18} />
+            Settings
+          </NavLink>
         </nav>
       </aside>
     </>

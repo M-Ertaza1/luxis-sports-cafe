@@ -62,7 +62,7 @@ export default function Inventory() {
   return (
     <Layout>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-brand">Inventory</h1>
+        <h1 className="text-2xl font-bold text-brand dark:text-brand-light">Inventory</h1>
         {allow('inventory.create') && (
           <button
             onClick={() => { setEditingItem(null); setShowForm(true); }}
@@ -75,16 +75,16 @@ export default function Inventory() {
       </div>
 
       {loading ? (
-        <p className="text-gray-500">Loading inventory…</p>
+        <p className="text-gray-500 dark:text-gray-400">Loading inventory…</p>
       ) : error ? (
-        <p className="text-red-600">{error}</p>
+        <p className="text-red-600 dark:text-red-400">{error}</p>
       ) : items.length === 0 ? (
-        <p className="text-gray-400">No items yet.</p>
+        <p className="text-gray-400 dark:text-gray-500">No items yet.</p>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-600">
+              <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-600 dark:text-gray-400">
                 <tr>
                   <th className="text-left px-4 py-3 font-medium">Item</th>
                   <th className="text-left px-4 py-3 font-medium">Category</th>
@@ -96,38 +96,40 @@ export default function Inventory() {
               </thead>
               <tbody>
                 {items.map((it) => (
-                  <tr key={it.id} className="border-t border-gray-100 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-800">{it.name}</td>
-                    <td className="px-4 py-3 text-gray-600">{it.category}</td>
+                  <tr key={it.id} className="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{it.name}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{it.category}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                        it.itemType === 'STOCK' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                        it.itemType === 'STOCK'
+                          ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
+                          : 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300'
                       }`}>
                         {it.itemType === 'STOCK' ? 'Stock' : 'Fresh'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-700">Rs {Number(it.price).toLocaleString()}</td>
-                    <td className="px-4 py-3 text-gray-600">{it.unit}</td>
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-200">Rs {Number(it.price).toLocaleString()}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{it.unit}</td>
                     {showActions && (
                       <td className="px-4 py-3">
                         <div className="flex justify-end gap-2">
                           {it.itemType === 'FRESH_ON_DEMAND' && allow('recipe.manage') && (
-                            <button onClick={() => setRecipeItem(it)} className="text-gray-400 hover:text-brand" aria-label="Manage recipe" title="Manage recipe">
+                            <button onClick={() => setRecipeItem(it)} className="text-gray-400 dark:text-gray-500 hover:text-brand dark:hover:text-brand-light" aria-label="Manage recipe" title="Manage recipe">
                               <ChefHat size={16} />
                             </button>
                           )}
                           {it.itemType === 'STOCK' && allow('stock.adjust') && (
-                            <button onClick={() => setStockItem(it)} className="text-gray-400 hover:text-brand" aria-label="Manage stock" title="Manage stock">
+                            <button onClick={() => setStockItem(it)} className="text-gray-400 dark:text-gray-500 hover:text-brand dark:hover:text-brand-light" aria-label="Manage stock" title="Manage stock">
                               <Boxes size={16} />
                             </button>
                           )}
                           {allow('inventory.update') && (
-                            <button onClick={() => { setEditingItem(it); setShowForm(true); }} className="text-gray-400 hover:text-brand" aria-label="Edit">
+                            <button onClick={() => { setEditingItem(it); setShowForm(true); }} className="text-gray-400 dark:text-gray-500 hover:text-brand dark:hover:text-brand-light" aria-label="Edit">
                               <Pencil size={16} />
                             </button>
                           )}
                           {allow('inventory.delete') && (
-                            <button onClick={() => setDeleteTarget(it)} className="text-gray-400 hover:text-red-600" aria-label="Delete">
+                            <button onClick={() => setDeleteTarget(it)} className="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400" aria-label="Delete">
                               <Trash2 size={16} />
                             </button>
                           )}
