@@ -1,5 +1,5 @@
-const bcrypt = require('bcrypt');
 const prisma = require('../db');
+const bcrypt = require('bcrypt');
 const { writeAuditLog } = require('../utils/audit');
 const { emitChange } = require('../utils/realtime');
 
@@ -114,4 +114,126 @@ async function deleteUser(req, res) {
   res.json({ message: 'User removed successfully' });
 }
 
-module.exports = { getUsers, createUser, deleteUser };
+async function changePassword(req, res) {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: 'Current and new password are required' });
+  }
+  if (newPassword.length < 8) {
+    return res.status(400).json({ error: 'New password must be at least 8 characters' });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!valid) {
+      return res.status(400).json({ error: 'Current password is incorrect' });
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash: hashed },
+    });
+
+    await writeAuditLog({
+      userId: user.id,
+      actionType: 'UPDATE',
+      entityType: 'User',
+      entityId: user.id,
+      newValue: { passwordChanged: true },
+    });
+
+    res.json({ message: 'Password changed successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Could not change password' });
+  }
+}
+
+async function changeEmail(req, res) {
+  const { newEmail, currentPassword } = req.body;
+
+  if (!newEmail || !currentPassword) {
+    return res.status(400).json({ error: 'New email and current password are required' });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!valid) {
+      return res.status(400).json({ error: 'Password is incorrect' });
+    }
+
+    const existing = await prisma.user.findUnique({ where: { email: newEmail } });
+    if (existing && existing.id !== user.id) {
+      return res.status(400).json({ error: 'That email is already in use' });
+    }
+
+    const updated = await prisma.user.update({
+      where: { id: user.id },
+      data: { email: newEmail },
+      select: { id: true, name: true, email: true },
+    });
+
+    await writeAuditLog({
+      userId: user.id,
+      actionType: 'UPDATE',
+      entityType: 'User',
+      entityId: user.id,
+      previousValue: { email: user.email },
+      newValue: { email: newEmail },
+    });
+
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Could not change email' });
+  }
+}
+
+async function changeName(req, res) {
+  const { name } = req.body;
+
+  if (!name || !name.trim()) {
+    return res.status(400).json({ error: 'Name is required' });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const updated = await prisma.user.update({
+      where: { id: user.id },
+      data: { name: name.trim() },
+      select: { id: true, name: true, email: true },
+    });
+
+    await writeAuditLog({
+      userId: user.id,
+      actionType: 'UPDATE',
+      entityType: 'User',
+      entityId: user.id,
+      previousValue: { name: user.name },
+      newValue: { name: name.trim() },
+    });
+
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Could not change name' });
+  }
+}
+
+module.exports = { getUsers, createUser, deleteUser, changePassword, changeEmail, changeName };
