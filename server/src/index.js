@@ -8,6 +8,10 @@ const { setIo } = require('./socket');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// In production, set CLIENT_URL to your deployed frontend (e.g. https://luxis.vercel.app)
+// Locally it falls back to allowing the Vite dev server.
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+
 const authRoutes = require('./routes/auth.routes');
 const bookingRoutes = require('./routes/booking.routes');
 const inventoryRoutes = require('./routes/inventory.routes');
@@ -19,7 +23,7 @@ const dashboardRoutes = require('./routes/dashboard.routes');
 const arenaRoutes = require('./routes/arena.routes');
 const userRoutes = require('./routes/user.routes');
 
-app.use(cors());
+app.use(cors({ origin: CLIENT_URL, credentials: true }));
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
@@ -39,7 +43,7 @@ app.get('/health', (req, res) => {
 const server = http.createServer(app);
 
 const io = new Server(server, {
-  cors: { origin: '*' },
+  cors: { origin: CLIENT_URL, credentials: true },
 });
 
 setIo(io);
@@ -53,5 +57,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

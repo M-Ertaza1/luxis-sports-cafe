@@ -1,7 +1,11 @@
 import axios from 'axios';
 
+// In production, set VITE_API_URL to your deployed backend (e.g. https://luxis-api.onrender.com)
+// Locally it falls back to localhost.
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: `${API_BASE}/api`,
 });
 
 api.interceptors.request.use((config) => {
@@ -44,7 +48,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const res = await axios.post('http://localhost:5000/api/auth/refresh', {
+        const res = await axios.post(`${API_BASE}/api/auth/refresh`, {
           refreshToken,
         });
         const newToken = res.data.accessToken;
