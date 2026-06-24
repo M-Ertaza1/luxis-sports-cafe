@@ -165,7 +165,7 @@ The seed script creates three accounts you can sign in with:
 
 | Role            | Email                          | Password       |
 |-----------------|--------------------------------|----------------|
-| Super Admin     | `admin@luxissportscafe.com`    | `ChangeMe123!` |
+| Super Admin     | `admin@luxissportscafe.com`    | `Admin123` |
 | Secondary Admin | `manager@luxissportscafe.com`  | `Manager123!`  |
 | Viewer          | `viewer@luxissportscafe.com`   | `Viewer123!`   |
 
